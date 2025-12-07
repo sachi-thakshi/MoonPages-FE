@@ -5,35 +5,33 @@ import Swal from "sweetalert2"
 import { Moon, Eye, EyeOff, User as UserIcon, BookOpen, type LucideIcon } from "lucide-react"
 
 interface RoleOptionProps {
-    value: string;
-    label: string;
-    // Icon is a React component (specifically a LucideIcon from the library)
-    Icon: LucideIcon; 
+    value: string
+    label: string
+    Icon: LucideIcon
 }
 
 interface RoleOptionItem {
-    value: string;
-    label: string;
-    Icon: LucideIcon;
+    value: string
+    label: string
+    Icon: LucideIcon
 }
 
 function Register() {
-//   const [name, setName] = useState("")
-    const navigate = useNavigate()
+  const navigate = useNavigate()
 
-  const [firstname, setFirstName] = useState("")
-  const [lastname, setLastName] = useState("")
+  const [firstName, setFirstName] = useState("")
+  const [lastName, setLastName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [role, setRole] = useState("USER")
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Registered:", { firstname, lastname, email, password, role })
+    e.preventDefault();    
+    console.log("Registered:", { firstName, lastName, email, password, role })
 
     try {
-      const data: any = await register(firstname, lastname, email, password, role)
+      const data: any = await register(firstName, lastName, email, password, role)
       console.log("Register response:", data)
 
       const token = data?.data?.accessToken || data?.accessToken
@@ -142,7 +140,7 @@ function Register() {
                     id="firstname"
                     type="text"
                     placeholder="John"
-                    value={firstname}
+                    value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                     className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition text-white placeholder-slate-500"
                 />
@@ -156,7 +154,7 @@ function Register() {
                     id="lastname"
                     type="text"
                     placeholder="Doe"
-                    value={lastname}
+                    value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                     className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition text-white placeholder-slate-500"
                 />

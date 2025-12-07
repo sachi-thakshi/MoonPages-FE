@@ -1,15 +1,35 @@
 import { lazy, Suspense, type ReactNode } from "react"
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
 import { useAuth } from "../context/authContext"
+import type { Role } from "../types"
 
 const Index = lazy(() => import("../pages"))
 const Login = lazy(() => import("../pages/Login"))
 const Register = lazy(() => import("../pages/Register"))
-const UserHome = lazy(() => import("../pages/UserHome"))
-const AdminHome = lazy(() => import("../pages/AdminHome"))
-const AuthorHome = lazy(() => import("../pages/AuthorHome"))
 
-type RequireAuthTypes = { children: ReactNode, roles?:string[] }
+const UserHome = lazy(() => import("../pages/user/UserHome"))
+const UserSettings = lazy(() => import("../pages/user/UserSettings"))
+
+const AdminHome = lazy(() => import("../pages/admin/AdminHome"))
+const AdminUsers = lazy(() => import("../pages/admin/Users"))
+const AdminAdmins = lazy(() => import("../pages/admin/Admins"))
+const AdminBooks = lazy(() => import("../pages/admin/Books"))
+const AdminAuthors = lazy(() => import("../pages/admin/Authors"))
+const AdminDiscussions = lazy(() => import("../pages/admin/Discussions"))
+const AdminAnalytics = lazy(() => import("../pages/admin/Analytics"))
+const AdminSettings = lazy(() => import("../pages/admin/Settings"))
+const AdminLayout = lazy(() => import("../pages/admin/AdminLayout"))
+
+
+const AuthorHome = lazy(() => import("../pages/author/AuthorHome"))
+
+const ROLES = {
+    ADMIN: "ADMIN" as Role,
+    AUTHOR: "AUTHOR" as Role,
+    USER: "USER" as Role
+}
+
+type RequireAuthTypes = { children: ReactNode, roles?: Role[] }
 
 const RequireAuth = ({ children , roles} : RequireAuthTypes) => {
   const  {user, loading} = useAuth()
@@ -26,7 +46,7 @@ const RequireAuth = ({ children , roles} : RequireAuthTypes) => {
     return <Navigate to="/login" replace/>
   }
 
-  if (roles && !roles.some((role) => user.roles?.includes(role))){
+  if (roles && !roles.some((role) => (user.roles as Role[])?.includes(role))) {
     return (
       <div className="text-center py-20">
         <h2 className="text-xl font-bold mb-2">Access Denied</h2>
@@ -57,8 +77,16 @@ export default function Router() {
           <Route
             path="/user/home"
             element={
-              <RequireAuth roles={["USER"]}>
+              <RequireAuth roles={[ROLES.USER]}>
                 <UserHome />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/user/settings"
+            element={
+              <RequireAuth roles={[ROLES.USER]}>
+                <UserSettings />
               </RequireAuth>
             }
           />
@@ -66,20 +94,39 @@ export default function Router() {
           <Route
             path="/author/home"
             element={
-              <RequireAuth roles={["AUTHOR"]}>
+              <RequireAuth roles={[ROLES.AUTHOR]}>
                 <AuthorHome />
               </RequireAuth>
             }
           />
 
           <Route
-            path="/admin/home"
+            path="/admin/*"
             element={
-              <RequireAuth roles={["ADMIN"]}>
-                <AdminHome />
+              <RequireAuth roles={[ROLES.ADMIN]}>
+                <AdminLayout />   {/* shared sidebar + top bar */}
               </RequireAuth>
             }
-          />
+          >
+            <Route path="home" element={<AdminHome />} />
+            <Route path="users" element={<AdminUsers />} />
+            <Route path="admins" element={<AdminAdmins />} />
+            <Route path="books" element={<AdminBooks />} />
+            <Route path="authors" element={<AdminAuthors />} />
+            <Route path="discussions" element={<AdminDiscussions />} />
+            <Route path="analytics" element={<AdminAnalytics />} />
+            <Route path="settings" element={<AdminSettings />} />
+
+            {/* default redirect */}
+            <Route index element={<Navigate to="home" replace/>} />
+          </Route>
+
+          <Route path="*" element={
+                <div className="text-center py-20">
+                    <h2 className="text-2xl font-bold mb-2">404 Not Found</h2>
+                    <p>The page you are looking for does not exist.</p>
+                </div>
+          }/>  
         </Routes>
       </Suspense>
     </BrowserRouter>

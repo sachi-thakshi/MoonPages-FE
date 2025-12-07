@@ -6,7 +6,7 @@ import { getMyDetails, login } from "../services/auth"
 import Swal from "sweetalert2"
 
 export default function Login() {
-   const [username, setUsername] = useState("")
+   const [email, setUsername] = useState("")
    const [password, setPassword] = useState("")
    const [showPassword, setShowPassword] = useState(false)
 
@@ -16,7 +16,7 @@ export default function Login() {
     const handleLogin = async (e:React.FormEvent<HTMLButtonElement>) => {
         e.preventDefault()
 
-        if (!username.trim() || !password.trim()) {
+        if (!email.trim() || !password.trim()) {
             Swal.fire({
                 icon: "warning",
                 title: "Something Went Wrong",
@@ -27,10 +27,13 @@ export default function Login() {
         }
 
         try {
-            const data: any = await login(username, password)
+            const data: any = await login(email, password)
 
             if (data?.data?.accessToken) {
-                await localStorage.setItem("accessToken", data.data.accessToken)
+                localStorage.setItem("accessToken", data.data.accessToken)
+                if (data.data.refreshToken) {
+                  localStorage.setItem("refreshToken", data.data.refreshToken)
+                }
 
                 const resData = await getMyDetails()
                 setUser(resData.data)
@@ -108,7 +111,7 @@ export default function Login() {
                 id="username"
                 type="text"
                 placeholder="Enter your username"
-                value={username}
+                value={email}
                 onChange={(e) => setUsername(e.target.value)}
                 className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition text-white placeholder-slate-500"
               />

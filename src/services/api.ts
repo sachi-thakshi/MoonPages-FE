@@ -5,14 +5,14 @@ const api = axios.create({
   baseURL: "http://localhost:5000/api/v1"
 })
 
-const PUBLIC_ENDPOINTS = ["/auth/login", "/auth/register"]
+const PUBLIC_ENDPOINTS = ["/auth/login", "/auth/register", "/auth/refresh"]
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("accessToken")
 
-  const isPUblic = PUBLIC_ENDPOINTS.some((url) => config.url?.includes(url))
+  const isPublic = PUBLIC_ENDPOINTS.some((url) => config.url?.startsWith(url))
 
-  if (!isPUblic && token) {
+  if (!isPublic && token) {
     config.headers.Authorization = `Bearer ${token}`
   }
 
