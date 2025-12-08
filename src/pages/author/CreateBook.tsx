@@ -2,6 +2,7 @@ import { useState, type ChangeEvent } from "react"
 import { Moon, BookOpen, Image, Save, ArrowLeft, Plus, X, Eye } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { createBook, uploadBookCover, updateBookCategories } from "../../services/book"
+import Swal from "sweetalert2"
 
 type BookStatus = "DRAFT" | "PUBLISHED" | "ARCHIVED"
 
@@ -80,7 +81,12 @@ export default function CreateBook() {
   const handleSaveBook = async () => {
     try {
       if (!title.trim() || !description.trim()) {
-        alert("Please fill in the title and description")
+        Swal.fire({
+                icon: "warning",
+                title: "Unfilled info",
+                text: "Please fill in the title and description.",
+                confirmButtonColor: "#f87171"
+        })
         return
       }
 
@@ -102,11 +108,23 @@ export default function CreateBook() {
       const categoryArray = categories.split(",").map(c => c.trim()).filter(Boolean)
       await updateBookCategories(bookId, categoryArray)
 
-      alert("Book created successfully!")
-      navigate(`/author/home`)
+      Swal.fire({
+                icon: "success",
+                title: "Creation Success",
+                text: "Book created successfully!",
+                confirmButtonColor: "#f87171"
+      }).then(() =>{
+            navigate("/author/home")
+      })
 
     } catch (err: any) {
-      alert(err.response?.data?.message || err.message)
+      console.log(err.response?.data?.message || err.message)
+      Swal.fire({
+                icon: "error",
+                title: "Creation Failed",
+                text: "Book creation failed",
+                confirmButtonColor: "#f87171"
+      })
     }
   }
 

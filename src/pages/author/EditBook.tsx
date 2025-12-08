@@ -2,6 +2,7 @@ import { useState, useEffect, type ChangeEvent } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { Moon, BookOpen, Image, Save, ArrowLeft, Plus, X, Eye } from "lucide-react"
 import { getBookById, updateChapter, uploadBookCover, updateBookCategories, addChapter, updateBookStatus } from "../../services/book"
+import Swal from "sweetalert2"
 
 type BookStatus = "DRAFT" | "PUBLISHED" | "ARCHIVED"
 interface Chapter {
@@ -73,7 +74,12 @@ export default function EditBook() {
         setChapters([...chapters, res.chapter])
     } catch (err: any) {
         console.error("Add chapter error:", err)
-        alert(err.response?.data?.message || "Failed to update or add chapter.")
+        Swal.fire({
+                  icon: "error",
+                  title: "Update or Add Failed",
+                  text: "Failed to update or add chapter.",
+                  confirmButtonColor: "#f87171"
+        })
     }
   }
 
@@ -105,11 +111,22 @@ export default function EditBook() {
         })
       }
 
-      alert("Book updated successfully!")
-      navigate("/author/home")
+      Swal.fire({
+                icon: "success",
+                title: "Deletion Success",
+                text: "Book updated successfully!",
+                confirmButtonColor: "#f87171"
+      }).then(() =>{
+            navigate("/author/home")
+      })
     } catch (err: any) {
       console.error("Save book error:", err)
-      alert(err.response?.data?.message || err.message)
+      Swal.fire({
+                  icon: "error",
+                  title: "Save Failed",
+                  text: "Failed to save book.",
+                  confirmButtonColor: "#f87171"
+      })
     } finally{
         setIsSaving(false)
     }
