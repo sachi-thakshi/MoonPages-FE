@@ -3,8 +3,6 @@ import { BookOpen, Moon, Star, TrendingUp, Bookmark, Highlighter, Sparkles, Chev
 import { useAuth } from "../../context/authContext"
 
 export default function UserHome() {
-  // const [activeStat, setActiveStat] = useState('week')
-
   const { user, setUser } = useAuth()
   const navigate = useNavigate()
 
@@ -14,7 +12,7 @@ export default function UserHome() {
     navigate("/login")
   }
 
-   const goToSettings = () => {
+  const goToSettings = () => {
     navigate("/user/settings")
   }
 
