@@ -22,6 +22,10 @@ const AdminLayout = lazy(() => import("../pages/admin/AdminLayout"))
 
 
 const AuthorHome = lazy(() => import("../pages/author/AuthorHome"))
+const CreateBook = lazy(() => import("../pages/author/CreateBook"))
+const BookReader = lazy(() => import("../pages/author/BookReader"))
+const EditBook = lazy(() => import("../pages/author/EditBook"))
+const AuthorSettings = lazy(() => import("../pages/author/AuthorSettings"))
 
 const ROLES = {
     ADMIN: "ADMIN" as Role,
@@ -96,6 +100,38 @@ export default function Router() {
             element={
               <RequireAuth roles={[ROLES.AUTHOR]}>
                 <AuthorHome />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/author/book/:bookId"
+            element={
+              <RequireAuth roles={[ROLES.AUTHOR]}>
+                <BookReader />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/author/create-book"
+            element={
+              <RequireAuth roles={[ROLES.AUTHOR]}>
+                <CreateBook />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/author/book/:bookId/edit"
+            element={
+              <RequireAuth roles={[ROLES.AUTHOR]}>
+                <EditBook />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/author/settings"
+            element={
+              <RequireAuth roles={[ROLES.AUTHOR]}>
+                <AuthorSettings />
               </RequireAuth>
             }
           />

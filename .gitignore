@@ -9,7 +9,6 @@ lerna-debug.log*
 
 node_modules
 admin
-author
 dist
 dist-ssr
 *.local
