@@ -1,5 +1,5 @@
 import { Link , useNavigate } from 'react-router-dom'
-import { BookOpen, Moon, Star, TrendingUp, Bookmark, Highlighter, Sparkles, ChevronRight, Clock, Target, Award, Zap, Brain, Bell, Search, Settings, LogOut } from 'lucide-react'
+import { BookOpen, Moon, TrendingUp, Bookmark, Highlighter, ChevronRight, Clock, Target, Award, Zap,  Bell, Search, Settings, LogOut } from 'lucide-react'
 import { useAuth } from "../../context/authContext"
 
 export default function UserHome() {
@@ -63,33 +63,6 @@ export default function UserHome() {
     { id: 3, book: "Educated", text: "I am not the child my father raised, but he is the father who raised her.", color: "pink" }
   ]
 
-  const recommendations = [
-    {
-      id: 1,
-      title: "Project Hail Mary",
-      author: "Andy Weir",
-      cover: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&h=600&fit=crop",
-      reason: "Based on your love for sci-fi thrillers",
-      match: 94
-    },
-    {
-      id: 2,
-      title: "The Seven Husbands",
-      author: "Taylor Jenkins Reid",
-      cover: "https://images.unsplash.com/photo-1519682337058-a94d519337bc?w=400&h=600&fit=crop",
-      reason: "Similar to your recent fiction reads",
-      match: 89
-    },
-    {
-      id: 3,
-      title: "Thinking, Fast and Slow",
-      author: "Daniel Kahneman",
-      cover: "https://images.unsplash.com/photo-1592496431122-2349e0fbc666?w=400&h=600&fit=crop",
-      reason: "Pairs well with Atomic Habits",
-      match: 87
-    }
-  ]
-
   const stats = {
     booksCompleted: 24,
     pagesRead: 8547,
@@ -151,7 +124,7 @@ export default function UserHome() {
           {/* Welcome Section */}
           <div className="mb-8">
             <h1 className="text-4xl font-bold mb-2">
-              Welcome back, <span className="bg-linear-to-r from-yellow-400 to-purple-400 bg-clip-text text-transparent">{user?.firstName || "User"}! </span>
+              Welcome back, <span className="bg-linear-to-r from-yellow-400 to-purple-400 bg-clip-text text-transparent">{user?.email || "User"}! </span>
             </h1>
             <p className="text-slate-400">Ready to continue your reading journey?</p>
           </div>
@@ -159,7 +132,7 @@ export default function UserHome() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-7">
             <div>
                 <Link
-                    to="/books"
+                    to={"/user/all-books"}
                     className="px-6 py-3 bg-linear-to-r from-indigo-600 to-purple-600 rounded-lg font-semibold hover:from-indigo-500 hover:to-purple-500 transition flex items-center gap-2">
                             Claim Your Next Read
                     <ChevronRight className="w-5 h-5" />
@@ -267,7 +240,7 @@ export default function UserHome() {
           </div>
 
           {/* Grid Layout for Bookmarks, Highlights, and Recommendations */}
-          <div className="grid lg:grid-cols-2 gap-8">
+          {/* <div className="grid lg:grid-cols-2 gap-8"> */}
             
             {/* Bookmarks & Highlights Column */}
             <div className="space-y-8">
@@ -328,75 +301,9 @@ export default function UserHome() {
               </div>
             </div>
 
-            {/* AI Recommendations */}
-            <div>
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold flex items-center gap-2">
-                  <Brain className="w-7 h-7 text-purple-400" />
-                  AI Recommendations
-                </h2>
-                <div className="flex items-center gap-2 px-3 py-1 bg-purple-950/50 border border-purple-800/30 rounded-full">
-                  <Sparkles className="w-4 h-4 text-purple-400" />
-                  <span className="text-xs text-purple-400">Powered by AI</span>
-                </div>
-              </div>
+           
 
-              <div className="space-y-4">
-                {recommendations.map((rec) => (
-                  <Link 
-                    key={rec.id}
-                    to={`/book/${rec.id}`}
-                    className="block bg-linear-to-br from-purple-950/30 to-indigo-950/30 border border-purple-800/30 rounded-xl overflow-hidden hover:border-purple-600 transition group cursor-pointer"
-                  >
-                    <div className="flex gap-4 p-4">
-                      <div className="shrink-0 w-20 h-28 rounded-lg overflow-hidden shadow-lg">
-                        <img 
-                          src={rec.cover} 
-                          alt={rec.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition"
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between mb-2">
-                          <div>
-                            <h3 className="font-bold mb-1">{rec.title}</h3>
-                            <p className="text-sm text-slate-400">{rec.author}</p>
-                          </div>
-                          <div className="flex items-center gap-1 px-2 py-1 bg-purple-600/20 rounded-lg">
-                            <Star className="w-3 h-3 fill-purple-400 text-purple-400" />
-                            <span className="text-xs font-semibold text-purple-400">{rec.match}%</span>
-                          </div>
-                        </div>
-                        <p className="text-xs text-slate-400 mb-3">{rec.reason}</p>
-                        <button className="px-3 py-1.5 bg-linear-to-r from-purple-600 to-indigo-600 rounded-lg text-xs font-semibold hover:from-purple-500 hover:to-indigo-500 transition">
-                          Add to Library
-                        </button>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-
-              {/* Weekly Goal */}
-              <div className="mt-6 bg-linear-to-br from-indigo-950/50 to-purple-950/50 border border-indigo-800/30 rounded-xl p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-bold flex items-center gap-2">
-                    <Target className="w-5 h-5 text-indigo-400" />
-                    Weekly Reading Goal
-                  </h3>
-                  <span className="text-sm text-slate-400">5 of 7 days</span>
-                </div>
-                <div className="relative w-full h-3 bg-slate-800 rounded-full overflow-hidden mb-2">
-                  <div 
-                    className="absolute top-0 left-0 h-full bg-linear-to-r from-indigo-600 to-purple-600 rounded-full"
-                    style={{ width: '71%' }}
-                  ></div>
-                </div>
-                <p className="text-xs text-slate-400">2 more days to maintain your streak! 🔥</p>
-              </div>
-            </div>
-
-          </div>
+          {/* </div> */}
 
         </div>
       </div>

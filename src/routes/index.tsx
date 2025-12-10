@@ -9,6 +9,8 @@ const Register = lazy(() => import("../pages/Register"))
 
 const UserHome = lazy(() => import("../pages/user/UserHome"))
 const UserSettings = lazy(() => import("../pages/user/UserSettings"))
+const AllBooks = lazy(() => import("../pages/user/AllBoooks"))
+const Book = lazy(() => import("../pages/user/Book"))
 
 const AdminHome = lazy(() => import("../pages/admin/AdminHome"))
 const AdminUsers = lazy(() => import("../pages/admin/Users"))
@@ -91,6 +93,22 @@ export default function Router() {
             element={
               <RequireAuth roles={[ROLES.USER]}>
                 <UserSettings />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/user/all-books"
+            element={
+              <RequireAuth roles={[ROLES.USER]}>
+                <AllBooks />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/user/book/:bookId"
+            element={
+              <RequireAuth roles={[ROLES.USER]}>
+                <Book />
               </RequireAuth>
             }
           />

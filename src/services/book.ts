@@ -93,3 +93,16 @@ export const deleteBook = async (bookId: string) => {
         throw error
     }
 }
+
+export const getPublishedBooks = async (page = 1, limit = 10) => {
+    try {
+        // Hitting the new public endpoint
+        const response = await api.get(`/books/published`, {
+            params: { page, limit }
+        }) 
+        return response.data
+    } catch (error) {
+        console.error("Failed to fetch published books:", error)
+        throw error
+    }
+}
