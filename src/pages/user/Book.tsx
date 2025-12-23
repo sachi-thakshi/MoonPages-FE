@@ -6,7 +6,7 @@ import { generateOverview } from "../../services/ai"
 import { useAuth } from "../../context/authContext" 
 import Swal from "sweetalert2"
 
-import { BookOpen, ChevronRight, ArrowLeft, Lightbulb, Bookmark, MessageSquare, Save, Trash2 } from "lucide-react"
+import { BookOpen, ChevronRight, ArrowLeft, Lightbulb, Bookmark, MessageSquare, Save, Trash2, Reply } from "lucide-react"
 
 interface Highlight {
     _id: string
@@ -21,12 +21,14 @@ interface UserBookData {
     highlights: Highlight[]
 }
 
-interface Comment {
-    _id: string
-    content: string
-    chapterNumber?: number
-    createdAt: string
-    user: { _id: string; firstName: string; lastName: string; profilePic?: string } 
+interface IBookComment {
+    _id: string
+    content: string
+    chapterNumber?: number
+    createdAt: string
+    user: { _id: string; firstName: string; lastName: string; profilePic?: string } 
+    authorReply?: string; 
+    repliedAt?: string;
 }
 
 export default function Book() {
@@ -41,51 +43,7 @@ export default function Book() {
     const [aiOverview, setAiOverview] = useState("AI is generating a short summary...")
     const [userBookData, setUserBookData] = useState<UserBookData>({ bookmarkChapter: null, highlights: [] })
     const [newComment, setNewComment] = useState('')
-    const [comments, setComments] = useState<Comment[]>([])
-
-//     useEffect(() => {
-//         const fetchBookAndData = async () => { 
-//             if (!bookId) return
-
-//             try {
-//                 setLoading(true)
-
-//                 const bookRes = await getBookById(bookId!)
-//                 const fetchedBook = bookRes.book
-//                 
-//                 if (bookRes.success && fetchedBook) {
-//                     setBook(fetchedBook)
-//                     
-//                     const userDataRes = await UserReadingService.getUserBookData(bookId!)
-//                     setUserBookData({
-//                         bookmarkChapter: userDataRes.data.bookmarkChapter,
-//                         highlights: userDataRes.data.highlights || [],
-//                     })
-//                     setComments(userDataRes.data.comments || [])
-//                 
-//                     const bookDescription = fetchedBook.description || fetchedBook.title;
-//                     if (bookDescription) {
-//                         try {
-//                             const overview = await generateOverview(bookDescription, 100)
-//                             setAiOverview(overview)
-//                         } catch (aiErr) {
-//                             console.warn("AI generation failed (likely quota). Displaying fallback message.", aiErr)
-//                             setAiOverview("AI feature is temporarily unavailable. (Quota Exceeded)")
-//                         }
-//                     } else {
-//                         setAiOverview("No description available to generate AI overview.")
-//                     }
-//                 }
-//             } catch (err) {
-//                 console.error("Failed to load book data or user progress:", err)
-//                 setAiOverview("Could not load content due to a network error.")
-//             } finally {
-//                 setLoading(false)
-//             }
-//         };
-
-//         fetchBookAndData()
-//     }, [bookId])
+    const [comments, setComments] = useState<IBookComment[]>([])
 
     const fetchBookAndData = useCallback(async () => {
         if (!bookId) return
@@ -497,8 +455,20 @@ export default function Book() {
                                                 <span>{new Date(comment.createdAt).toLocaleDateString()}</span>
                                             </div>
                                             <p className="text-sm text-slate-300">{comment.content}</p>
-                                            
-                                            {/* Delete Button */}
+                                                                                        
+                                            {comment.authorReply && (
+                                                <div className="ml-8 p-4 bg-indigo-500/5 border-l-2 border-indigo-500 rounded-r-xl">
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <Reply className="w-3 h-3 text-indigo-400" />
+                                                        <span className="text-[10px] font-black text-400 tracking-widest">Author Response</span>
+                                                        <span className="text-[10px] text-slate-600">•</span>
+                                                        <span className="text-[10px] text-slate-500">{new Date(comment.repliedAt!).toLocaleDateString()}</span>
+                                                    </div>
+                                                    <p className="text-sm text-slate-200 italic">"{comment.authorReply}"</p>
+                                                </div>
+                                            )}
+
+                                            {/* Delete Button */}
                                             {comment.user._id.toString() === currentUserId?.toString() && (
                                                  <button 
                                                     onClick={() => handleDeleteComment(comment._id)}
@@ -516,5 +486,5 @@ export default function Book() {
                 </div>
             </div>
         </div>
-    );
+    )
 }
