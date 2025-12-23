@@ -275,16 +275,33 @@ export default function Book() {
     }
     
     const handleDeleteComment = async (commentId: string) => {
-        const confirmed = window.confirm("Are you sure you want to remove this comment?")
-        if (!confirmed) return
+        const result = await Swal.fire({
+            title: "Delete Comment?",
+            text: "Do you want to remove your comment?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#dc2626",
+            confirmButtonText: "Yes, delete it!"
+        })
+
+        if (!result.isConfirmed) return
 
         try {
             await UserReadingService.deleteComment(bookId!, commentId)
             
             setComments(prev => prev.filter(c => c._id !== commentId))
+
+            Swal.fire({ 
+                title: "Deleted!", 
+                icon: "success", 
+                toast: true, 
+                position: 'top-end', 
+                timer: 2000, 
+                showConfirmButton: false 
+            })
         } catch (error) {
             console.error("Failed to delete comment:", error)
-            alert("Failed to delete comment.")
+            Swal.fire("Error", "Could not delete comment.", "error")
         }
     }
 
@@ -482,7 +499,7 @@ export default function Book() {
                                             <p className="text-sm text-slate-300">{comment.content}</p>
                                             
                                             {/* Delete Button */}
-                                            {comment.user._id === currentUserId && (
+                                            {comment.user._id.toString() === currentUserId?.toString() && (
                                                  <button 
                                                     onClick={() => handleDeleteComment(comment._id)}
                                                     className="text-red-400 hover:text-red-300 text-xs mt-1 flex items-center gap-1"

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { Moon, BookOpen, Star, Search, Filter, ArrowLeft } from "lucide-react"
+import { Moon, BookOpen, Search, Filter, ArrowLeft } from "lucide-react"
 import { getPublishedBooks } from "../../services/book" 
 import { Link } from "react-router-dom"
 
@@ -129,11 +129,6 @@ export default function AllBooks() {
                                     {/* Book Info */}
                                     <div className="p-4">
                                         <h3 className="font-bold text-xl mb-1 text-indigo-300 truncate">{book.title}</h3>
-                                        
-                                        <div className="flex items-center text-sm text-slate-400 mb-2">
-                                            <Star className="w-4 h-4 mr-1 fill-yellow-400 text-yellow-400" />
-                                            <span>4.5 (1.2k)</span> 
-                                        </div>
 
                                         <p className="text-xs text-slate-500">
                                             {book.categories?.slice(0, 2).join(" • ") || "General Fiction"}

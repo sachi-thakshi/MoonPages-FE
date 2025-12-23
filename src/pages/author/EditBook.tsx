@@ -113,7 +113,7 @@ export default function EditBook() {
 
       Swal.fire({
                 icon: "success",
-                title: "Deletion Success",
+                title: "Update Success",
                 text: "Book updated successfully!",
                 confirmButtonColor: "#f87171"
       }).then(() =>{

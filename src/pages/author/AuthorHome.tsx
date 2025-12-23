@@ -264,7 +264,7 @@ export default function AuthorHome() {
                           <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
                             book.status === 'Published' 
                               ? 'bg-green-600/20 text-green-400 border border-green-500/30' 
-                              : 'bg-yellow-600/20 text-yellow-400 border border-yellow-500/30'
+                              : 'bg-purple-600/20 text-400 border border-purple-500/30'
                           }`}>
                             {book.status}
                           </span>
