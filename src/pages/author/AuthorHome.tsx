@@ -1,13 +1,17 @@
 import { useEffect, useState } from 'react'
 import { Link , useNavigate} from 'react-router-dom'
-import { BookOpen, Moon, Users, MessageCircle, TrendingUp, Plus, Edit, Trash2, ChevronRight, Bell, Search, Settings, Star, LogOut } from 'lucide-react'
+import { BookOpen, Moon, Users, MessageCircle, TrendingUp, Plus, Edit, Trash2, Settings, LogOut } from 'lucide-react'
 import { useAuth } from "../../context/authContext"
 import { deleteBook, getAuthorBooks } from "../../services/book"
 import Swal from "sweetalert2"
+import { getAuthorDashboard } from "../../services/authorHome"
 
 export default function AuthorHome() {
   const { user, setUser } = useAuth()
   const navigate = useNavigate()
+  
+  const [myBooks, setMyBooks] = useState<any[]>([])
+  const [loadingBooks, setLoadingBooks] = useState(true)
 
   const handleLogout = () => {
     setUser(null)
@@ -23,25 +27,24 @@ export default function AuthorHome() {
     navigate("/author/settings")
   }
 
-  // Sample data
-  const stats = {
-    totalBooks: 8,
-    totalReaders: 12450,
-    newComments: 47,
-    avgRating: 4.6
-  }
-
-  const [myBooks, setMyBooks] = useState<any[]>([])
-  const [loadingBooks, setLoadingBooks] = useState(true)
+  const [dashboardData, setDashboardData] = useState({
+    stats: { publishedBooks: 0, totalReaders: 0, totalComments: 0 },
+    recentComments: []
+  })
 
   useEffect(() => {
     const fetchBooks = async () => {
       try {
         setLoadingBooks(true)
-        const res = await getAuthorBooks()
-        if (res.success) {
-          setMyBooks(res.books)
-        }
+        const [booksRes, statsRes] = await Promise.all([
+          getAuthorBooks(),
+          getAuthorDashboard()
+        ])
+        if (booksRes.success) setMyBooks(booksRes.books)
+        if (statsRes.success) setDashboardData({
+          stats: statsRes.stats,
+          recentComments: statsRes.recentComments
+        })
       } catch (err) {
         console.error("Failed to fetch author books:", err)
       } finally {
@@ -88,36 +91,6 @@ export default function AuthorHome() {
       })
     }
   }
-  
-  const recentComments = [
-    {
-      id: 1,
-      user: "Sarah Johnson",
-      avatar: "SJ",
-      book: "The Cosmic Journey",
-      comment: "This chapter was absolutely mind-blowing! The way you described the quantum realm was so vivid.",
-      time: "2 hours ago",
-      chapter: "Chapter 15"
-    },
-    {
-      id: 2,
-      user: "Mike Chen",
-      avatar: "MC",
-      book: "Midnight Reflections",
-      comment: "Your poetry speaks to my soul. This collection is a masterpiece.",
-      time: "5 hours ago",
-      chapter: "Chapter 7"
-    },
-    {
-      id: 3,
-      user: "Emma Davis",
-      avatar: "ED",
-      book: "The Cosmic Journey",
-      comment: "Can't wait for the next chapter! The cliffhanger is killing me 😭",
-      time: "1 day ago",
-      chapter: "Chapter 18"
-    }
-  ]
 
   return (
     <div className="min-h-screen bg-linear-to-b from-slate-950 via-indigo-950 to-slate-950 text-white">
@@ -137,20 +110,23 @@ export default function AuthorHome() {
             </div>
 
             <div className="flex items-center gap-4">
-              <button className="p-2 hover:bg-slate-800 rounded-lg transition">
-                <Search className="w-5 h-5" />
-              </button>
-              <button className="p-2 hover:bg-slate-800 rounded-lg transition relative">
-                <Bell className="w-5 h-5" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-pink-500 rounded-full"></span>
-              </button>
               <button 
                 onClick={goToSettings}
                 className="p-2 hover:bg-slate-800 rounded-lg transition">
                 <Settings className="w-5 h-5" />
               </button>
-              <div className="w-10 h-10 bg-linear-to-br from-indigo-600 to-purple-600 rounded-full flex items-center justify-center font-bold">
-                AW
+              <div className="w-10 h-10 rounded-full overflow-hidden border border-indigo-500/40">
+                  {user?.profilePic ? (
+                    <img
+                      src={user.profilePic}
+                      alt="Profile"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-linear-to-br from-indigo-600 to-purple-600 flex items-center justify-center font-bold">
+                      {user?.email?.[0]?.toUpperCase() || "U"}
+                    </div>
+                  )}
               </div>
               <button onClick={handleLogout}>
                 <LogOut className="w-6 h-6 text-red-600"/>
@@ -168,7 +144,7 @@ export default function AuthorHome() {
           <div className="flex items-center justify-between mb-8">
             <div>
               <h1 className="text-4xl font-bold mb-2">
-                Welcome back, <span className="bg-linear-to-r from-yellow-400 to-purple-400 bg-clip-text text-transparent">{user?.email || "User"}!</span>
+                Welcome back, <span className="bg-linear-to-r from-yellow-400 to-purple-400 bg-clip-text text-transparent">{user?.firstName || "User"} !</span>
               </h1>
               <p className="text-slate-400">Manage your books and connect with your readers</p>
             </div>
@@ -182,7 +158,7 @@ export default function AuthorHome() {
           </div>
 
           {/* Stats Overview */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
             <div className="bg-linear-to-br from-indigo-950/50 to-indigo-900/30 border border-indigo-800/30 rounded-xl p-6 hover:border-indigo-600 transition group">
               <div className="flex items-center justify-between mb-4">
                 <div className="p-3 bg-indigo-600/20 rounded-lg group-hover:bg-indigo-600/30 transition">
@@ -190,7 +166,7 @@ export default function AuthorHome() {
                 </div>
                 <TrendingUp className="w-5 h-5 text-green-400" />
               </div>
-              <div className="text-3xl font-bold mb-1">{stats.totalBooks}</div>
+              <div className="text-3xl font-bold mb-1">{dashboardData.stats.publishedBooks}</div>
               <div className="text-sm text-slate-400">Published Books</div>
             </div>
 
@@ -201,7 +177,7 @@ export default function AuthorHome() {
                 </div>
                 <TrendingUp className="w-5 h-5 text-green-400" />
               </div>
-              <div className="text-3xl font-bold mb-1">{stats.totalReaders.toLocaleString()}</div>
+              <div className="text-3xl font-bold mb-1">{dashboardData.stats.totalReaders.toLocaleString()}</div>
               <div className="text-sm text-slate-400">Total Readers</div>
             </div>
 
@@ -210,21 +186,10 @@ export default function AuthorHome() {
                 <div className="p-3 bg-yellow-600/20 rounded-lg group-hover:bg-yellow-600/30 transition">
                   <MessageCircle className="w-6 h-6 text-yellow-400" />
                 </div>
-                <span className="text-xs px-2 py-1 bg-yellow-600/20 text-yellow-400 rounded-full">This Week</span>
+                <TrendingUp className="w-5 h-5 text-green-400" />
               </div>
-              <div className="text-3xl font-bold mb-1">{stats.newComments}</div>
-              <div className="text-sm text-slate-400">New Comments</div>
-            </div>
-
-            <div className="bg-linear-to-br from-pink-950/50 to-pink-900/30 border border-pink-800/30 rounded-xl p-6 hover:border-pink-600 transition group">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 bg-pink-600/20 rounded-lg group-hover:bg-pink-600/30 transition">
-                  <Star className="w-6 h-6 text-pink-400" />
-                </div>
-                <Star className="w-5 h-5 fill-pink-400 text-pink-400" />
-              </div>
-              <div className="text-3xl font-bold mb-1">{stats.avgRating}</div>
-              <div className="text-sm text-slate-400">Average Rating</div>
+              <div className="text-3xl font-bold mb-1">{dashboardData.stats.totalComments}</div>
+              <div className="text-sm text-slate-400">All Comments</div>
             </div>
           </div>
 
@@ -303,47 +268,34 @@ export default function AuthorHome() {
             
           {/* Recent Comments */}
           <div>
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold flex items-center gap-2">
-                  <MessageCircle className="w-7 h-7 text-yellow-400" />
-                  Recent Comments
+              
+              <div>
+                <h2 className="text-2xl font-bold flex items-center gap-2 mb-6">
+                  <MessageCircle className="w-7 h-7 text-yellow-400" /> Recent Comments
                 </h2>
-                <button className="text-yellow-400 hover:text-yellow-300 flex items-center gap-1 text-sm">
-                  View All <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                {recentComments.map((comment) => (
-                  <div 
-                    key={comment.id}
-                    className="bg-slate-900/50 border border-slate-800 rounded-lg p-4 hover:border-yellow-600 transition"
-                  >
-                    <div className="flex items-start gap-3 mb-3">
-                      <div className="w-10 h-10 bg-linear-to-br from-indigo-600 to-purple-600 rounded-full flex items-center justify-center font-bold text-sm shrink-0">
-                        {comment.avatar}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between mb-1">
-                          <div>
-                            <h4 className="font-semibold text-sm">{comment.user}</h4>
-                            <p className="text-xs text-slate-500">{comment.book} • {comment.chapter}</p>
+                <div className="space-y-4">
+                  {dashboardData.recentComments.length > 0 ? (
+                    dashboardData.recentComments.map((comment: any) => (
+                      <div key={comment._id} className="bg-slate-900/50 border border-slate-800 rounded-lg p-4">
+                        <div className="flex items-start gap-3 mb-3">
+                          <div className="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center font-bold shrink-0">
+                            {comment.userAvatar}
                           </div>
-                          <span className="text-xs text-slate-500">{comment.time}</span>
+                          <div className="flex-1">
+                            <div className="flex justify-between">
+                              <h4 className="font-semibold">{comment.userName}</h4>
+                              <span className="text-xs text-slate-500">{new Date(comment.createdAt).toLocaleDateString()}</span>
+                            </div>
+                            <p className="text-xs text-indigo-400">{comment.bookTitle} • Ch. {comment.chapterNumber}</p>
+                            <p className="text-sm text-slate-300 mt-2">{comment.content}</p>
+                          </div>
                         </div>
-                        <p className="text-sm text-slate-300">{comment.comment}</p>
                       </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <button className="px-3 py-1.5 bg-indigo-600/20 border border-indigo-500/30 rounded-lg text-xs font-semibold hover:bg-indigo-600/30 transition">
-                        Reply
-                      </button>
-                      <button className="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs font-semibold hover:bg-slate-700 transition">
-                        Hide
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                    ))
+                  ) : (
+                    <div className="text-slate-500 italic">No comments found for your books.</div>
+                  )}
+                </div>
               </div>
           </div>
 
