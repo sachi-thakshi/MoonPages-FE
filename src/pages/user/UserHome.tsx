@@ -185,7 +185,7 @@ export default function UserHome() {
                   {bookmarks.map((item) => (
                     <Link
                       key={item._id}
-                      to={`/book/${item.book._id}`}
+                      to={`/user/book/${item.book._id}`}
                       className="block hover:text-yellow-400 transition"
                     >
                       <h3 className="font-semibold text-sm">
