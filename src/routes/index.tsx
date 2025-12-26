@@ -13,14 +13,12 @@ const AllBooks = lazy(() => import("../pages/user/AllBoooks"))
 const Book = lazy(() => import("../pages/user/Book"))
 
 const AdminHome = lazy(() => import("../pages/admin/AdminHome"))
-const AdminUsers = lazy(() => import("../pages/admin/Users"))
-const AdminAdmins = lazy(() => import("../pages/admin/Admins"))
-const AdminBooks = lazy(() => import("../pages/admin/Books"))
-const AdminAuthors = lazy(() => import("../pages/admin/Authors"))
-const AdminDiscussions = lazy(() => import("../pages/admin/Discussions"))
-const AdminAnalytics = lazy(() => import("../pages/admin/Analytics"))
-const AdminSettings = lazy(() => import("../pages/admin/Settings"))
-const AdminLayout = lazy(() => import("../pages/admin/AdminLayout"))
+const UsersManagement = lazy(() => import("../pages/admin/UsersManagement"))
+const AuthorsManagement = lazy(() => import("../pages/admin/AuthorsManagement"))
+const BooksManagement = lazy(() => import("../pages/admin/BooksManagement"))
+const AdminsManagement = lazy(() => import("../pages/admin/AdminsManagement"))
+const AdminSettings = lazy(() => import("../pages/admin/AdminSettings"))
+const AdminLayout  = lazy(() => import("../components/admin/AdminLayout"))
 
 
 const AuthorHome = lazy(() => import("../pages/author/AuthorHome"))
@@ -154,25 +152,21 @@ export default function Router() {
             }
           />
 
-          <Route
-            path="/admin/*"
-            element={
-              <RequireAuth roles={[ROLES.ADMIN]}>
-                <AdminLayout />   {/* shared sidebar + top bar */}
-              </RequireAuth>
-            }
+          <Route 
+              path="/admin/*" 
+              element={
+                <RequireAuth roles={[ROLES.ADMIN]}>
+                  <AdminLayout  />
+                </RequireAuth>
+              }
           >
+            <Route index element={<AdminHome />} />
             <Route path="home" element={<AdminHome />} />
-            <Route path="users" element={<AdminUsers />} />
-            <Route path="admins" element={<AdminAdmins />} />
-            <Route path="books" element={<AdminBooks />} />
-            <Route path="authors" element={<AdminAuthors />} />
-            <Route path="discussions" element={<AdminDiscussions />} />
-            <Route path="analytics" element={<AdminAnalytics />} />
+            <Route path="users" element={<UsersManagement />} />
+            <Route path="authors" element={<AuthorsManagement />} />
+            <Route path="books" element={<BooksManagement />} />
+            <Route path="admins" element={<AdminsManagement />} />
             <Route path="settings" element={<AdminSettings />} />
-
-            {/* default redirect */}
-            <Route index element={<Navigate to="home" replace/>} />
           </Route>
 
           <Route path="*" element={
