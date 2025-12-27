@@ -1,49 +1,32 @@
 import { Link } from "react-router-dom"
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { BookOpen, Moon, Star, Users, Sparkles, ChevronRight, Menu, X, MessageCircle, FileText, Zap, Brain } from 'lucide-react'
+import { getPublishedBooks } from "../services/book"
 
 export default function Index() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [featuredBooks, setFeaturedBooks] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const featuredBooks = [
-    { 
-      title: "The Midnight Library", 
-      author: "Matt Haig", 
-      cover: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=600&fit=crop",
-      rating: 4.5
-    },
-    { 
-      title: "Atomic Habits", 
-      author: "James Clear", 
-      cover: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=400&h=600&fit=crop",
-      rating: 4.8
-    },
-    { 
-      title: "The Silent Patient", 
-      author: "Alex Michaelides", 
-      cover: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400&h=600&fit=crop",
-      rating: 4.3
-    },
-    { 
-      title: "Educated", 
-      author: "Tara Westover", 
-      cover: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&h=600&fit=crop",
-      rating: 4.7
-    },
-    { 
-      title: "Where the Crawdads Sing", 
-      author: "Delia Owens", 
-      cover: "https://images.unsplash.com/photo-1592496431122-2349e0fbc666?w=400&h=600&fit=crop",
-      rating: 4.6
-    },
-    { 
-      title: "The Seven Husbands", 
-      author: "Taylor Jenkins Reid", 
-      cover: "https://images.unsplash.com/photo-1519682337058-a94d519337bc?w=400&h=600&fit=crop",
-      rating: 4.4
-    },
-  ]
-
+  useEffect(() => {
+    const fetchBooks = async () => {
+      try {
+        const data = await getPublishedBooks(1, 10)
+        
+        if (data && data.books) {
+          setFeaturedBooks(data.books)
+        } else if (Array.isArray(data)) {
+          setFeaturedBooks(data)
+        }
+      } catch (err) {
+        console.error("Landing page fetch error:", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchBooks()
+  }, [])
+  
   const features = [
     { icon: BookOpen, title: "Vast Library", desc: "Access thousands of books across all genres" },
     { icon: Brain, title: "AI Chat Assistant", desc: "Ask questions and discuss books with AI" },
@@ -158,26 +141,28 @@ export default function Index() {
         <div className="relative max-w-6xl mx-auto mt-20 h-96 overflow-hidden">
             <div className="absolute inset-0 flex items-center">
                 <div className="flex gap-6 animate-scroll">
-                {[...featuredBooks, ...featuredBooks].map((book, idx) => (
-                    <div 
-                    key={idx}
-                    className="shrink-0 w-48 aspect-2/3 rounded-lg shadow-2xl cursor-pointer overflow-hidden group relative"
-                    >
-                    <img 
-                        src={book.cover} 
-                        alt={book.title}
-                        className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-linear-to-t from-black via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-3">
-                        <h3 className="font-bold text-sm mb-1">{book.title}</h3>
-                        <p className="text-xs text-slate-300 mb-1">{book.author}</p>
-                        <div className="flex items-center gap-1">
-                        <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                        <span className="text-xs">{book.rating}</span>
-                        </div>
-                    </div>
-                    </div>
-                ))}
+                    {loading ? (
+                        [...Array(6)].map((_, i) => (
+                          <div key={i} className="shrink-0 w-48 aspect-2/3 rounded-lg bg-slate-800 animate-pulse" />
+                        ))
+                      ) : (
+                        [...featuredBooks, ...featuredBooks].map((book, idx) => (
+                          <div key={idx} className="shrink-0 w-48 aspect-2/3 rounded-lg shadow-2xl cursor-pointer overflow-hidden group relative border border-white/5">
+                            <img 
+                              src={book.coverImageUrl || "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400"} 
+                              alt={book.title}
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-linear-to-t from-black via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-3">
+                              <h3 className="font-bold text-sm mb-1 truncate">{book.title}</h3>
+                              
+                              <p className="text-xs text-slate-300 mb-1">
+                                {book.author?.firstName} {book.author?.lastName}
+                              </p>
+                            </div>
+                          </div>
+                        ))
+                      )}
                 </div>
             </div>
         </div>
@@ -236,85 +221,50 @@ export default function Index() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* AI Chat Assistant */}
-            <div className="bg-linear-to-br from-indigo-950/50 to-purple-950/50 border border-indigo-800/30 rounded-2xl p-8 hover:border-indigo-600 transition">
+          {/* Centering Container */}
+          <div className="flex justify-center"> 
+            <div className="w-full max-w-2xl bg-linear-to-br from-indigo-950/50 to-purple-950/50 border border-indigo-800/30 rounded-2xl p-8 hover:border-indigo-600 transition shadow-2xl">
               <div className="flex items-start gap-4 mb-6">
-                <div className="p-3 bg-indigo-600 rounded-xl">
-                  <MessageCircle className="w-8 h-8" />
+                <div className="p-3 bg-indigo-600 rounded-xl shadow-lg shadow-indigo-500/20">
+                  <MessageCircle className="w-8 h-8 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold mb-2">AI Chat Assistant</h3>
+                  <h3 className="text-2xl font-bold mb-2 text-white">AI Chat Assistant</h3>
                   <p className="text-slate-300">Have deep conversations about any book</p>
                 </div>
               </div>
               
               <div className="space-y-3 mb-6">
-                <div className="bg-slate-800/50 rounded-lg p-4 border-l-4 border-indigo-500">
-                  <p className="text-sm text-slate-300">"What's the main theme of this chapter?"</p>
+                <div className="bg-slate-800/50 rounded-lg p-4 border-l-4 border-indigo-500 transform hover:translate-x-1 transition-transform">
+                  <p className="text-sm text-slate-300 italic">"What's the main theme of this chapter?"</p>
                 </div>
-                <div className="bg-slate-800/50 rounded-lg p-4 border-l-4 border-purple-500">
-                  <p className="text-sm text-slate-300">"Explain the character's motivation"</p>
+                <div className="bg-slate-800/50 rounded-lg p-4 border-l-4 border-purple-500 transform hover:translate-x-1 transition-transform">
+                  <p className="text-sm text-slate-300 italic">"Explain the character's motivation"</p>
                 </div>
-                <div className="bg-slate-800/50 rounded-lg p-4 border-l-4 border-pink-500">
-                  <p className="text-sm text-slate-300">"Compare this to similar books"</p>
+                <div className="bg-slate-800/50 rounded-lg p-4 border-l-4 border-pink-500 transform hover:translate-x-1 transition-transform">
+                  <p className="text-sm text-slate-300 italic">"Compare this to similar books"</p>
                 </div>
               </div>
 
-              <ul className="space-y-2 text-sm text-slate-400">
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-slate-400">
                 <li className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 bg-indigo-400 rounded-full"></div>
-                  Real-time answers to your questions
+                  Real-time answers
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-purple-400 rounded-full"></div>
+                  Character analysis
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-pink-400 rounded-full"></div>
+                  Plot discussions
                 </li>
                 <li className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 bg-indigo-400 rounded-full"></div>
-                  Character analysis and plot discussions
-                </li>
-                <li className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 bg-indigo-400 rounded-full"></div>
-                  Contextual understanding of the story
+                  Story context
                 </li>
               </ul>
-            </div>
-
-            {/* AI Summary */}
-            <div className="bg-linear-to-br from-purple-950/50 to-pink-950/50 border border-purple-800/30 rounded-2xl p-8 hover:border-purple-600 transition">
-              <div className="flex items-start gap-4 mb-6">
-                <div className="p-3 bg-purple-600 rounded-xl">
-                  <FileText className="w-8 h-8" />
-                </div>
-                <div>
-                  <h3 className="text-2xl font-bold mb-2">AI Book Summaries</h3>
-                  <p className="text-slate-300">Instant intelligent summaries at your fingertips</p>
-                </div>
-              </div>
-
-              <div className="bg-slate-800/50 rounded-lg p-6 mb-6 border border-purple-800/30">
-                <div className="flex items-center gap-2 mb-3">
-                  <Brain className="w-5 h-5 text-purple-400" />
-                  <span className="text-sm font-semibold text-purple-400">AI Generated Summary</span>
-                </div>
-                <p className="text-sm text-slate-300 leading-relaxed">
-                  Get comprehensive summaries of entire books, specific chapters, or key concepts. 
-                  Perfect for quick reviews, study aids, or deciding what to read next.
-                </p>
-              </div>
-
-              <ul className="space-y-2 text-sm text-slate-400">
-                <li className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 bg-purple-400 rounded-full"></div>
-                  Chapter-by-chapter breakdowns
-                </li>
-                <li className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 bg-purple-400 rounded-full"></div>
-                  Key themes and takeaways
-                </li>
-                <li className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 bg-purple-400 rounded-full"></div>
-                  Save time without missing details
-                </li>
-              </ul>
-            </div>
+            </div>          
           </div>
         </div>
       </section>
