@@ -3,6 +3,7 @@ import { BookOpen, Moon, Bookmark, Highlighter, ChevronRight, Settings, LogOut }
 import { useAuth } from "../../context/authContext"
 import { useEffect, useState } from 'react'
 import { getUserLibrary } from "../../services/userHome" 
+import ChatBot from '../ChatBot'
 
 
 export default function UserHome() {
@@ -127,6 +128,8 @@ export default function UserHome() {
               Claim Your Next Read
               <ChevronRight className="w-5 h-5" />
             </Link>
+
+            <ChatBot />
           </div>
 
           {/* Dashboard Grid */}
