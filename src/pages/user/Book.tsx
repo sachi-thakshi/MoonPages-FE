@@ -6,7 +6,7 @@ import { generateOverview } from "../../services/ai"
 import { useAuth } from "../../context/authContext" 
 import Swal from "sweetalert2"
 
-import { BookOpen, ChevronRight, ArrowLeft, Lightbulb, Bookmark, MessageSquare, Save, Trash2, Reply } from "lucide-react"
+import { BookOpen, ChevronRight, ArrowLeft, Bookmark, MessageSquare, Save, Trash2, Reply } from "lucide-react"
 
 interface Highlight {
     _id: string
@@ -40,7 +40,6 @@ export default function Book() {
     const [book, setBook] = useState<any>(null)
     const [activeChapter, setActiveChapter] = useState<any>(null)
     const [loading, setLoading] = useState(true)
-    const [aiOverview, setAiOverview] = useState("AI is generating a short summary...")
     const [userBookData, setUserBookData] = useState<UserBookData>({ bookmarkChapter: null, highlights: [] })
     const [newComment, setNewComment] = useState('')
     const [comments, setComments] = useState<IBookComment[]>([])
@@ -62,21 +61,7 @@ export default function Book() {
                     bookmarkChapter: userDataRes.data.bookmarkChapter,
                     highlights: userDataRes.data.highlights || [],
                 })
-                setComments(userDataRes.data.comments || [])
-                
-                const bookDescription = fetchedBook.description || fetchedBook.title;
-                if (bookDescription) {
-                    setAiOverview("AI is generating a short summary...")
-                    try {
-                        const overview = await generateOverview(bookDescription, 100)
-                        setAiOverview(overview)
-                    } catch (aiErr) {
-                        console.warn("AI generation failed (likely quota). Displaying fallback message.", aiErr)
-                        setAiOverview("AI feature is temporarily unavailable. (Quota Exceeded)")
-                    }
-                } else {
-                    setAiOverview("No description available to generate AI overview.")
-                }
+                setComments(userDataRes.data.comments || [])                
             }
         } catch (err) {
             console.error("Failed to load book data or user progress:", err)
@@ -86,11 +71,10 @@ export default function Book() {
                 text: "Failed to load book content or your saved progress.",
                 icon: "error"
             })
-            setAiOverview("Could not load content due to a network error.")
         } finally {
             setLoading(false)
         }
-    }, [bookId, setBook, setUserBookData, setComments, setAiOverview, getBookById, UserReadingService.getUserBookData, generateOverview])
+    }, [bookId, setBook, setUserBookData, setComments, getBookById, UserReadingService.getUserBookData, generateOverview])
 
 
     useEffect(() => {
@@ -263,7 +247,6 @@ export default function Book() {
         }
     }
 
-
     if (loading) {
          return(
             <div className="min-h-screen flex items-center justify-center bg-slate-950 text-white">
@@ -320,7 +303,6 @@ export default function Book() {
 
             <div className="max-w-6xl mx-auto py-10 px-4">
 
-                {/* Header/AI Overview */}
                 <div className="flex flex-col gap-6 mb-10 bg-slate-900/40 border border-slate-800 rounded-xl p-6">
                     <div className="flex gap-6 items-start">
                         <img
@@ -329,22 +311,15 @@ export default function Book() {
                             className="w-40 h-56 object-cover rounded-lg border border-slate-700 shrink-0"
                         />
                         <div className="flex-1">
-                            <h1 className="text-3xl font-bold text-indigo-400">{book.title}</h1>
+                            <h1 className="text-4xl font-bold text-indigo-400">{book.title}</h1>
+                            <h2 className="font-bold text-pink-300 mt-2"> 
+                                Written By :  {book?.author ? `${book.author.firstName} ${book.author.lastName}` : "Unknown Author"}
+                            </h2>
                             <p className="text-slate-400 mt-2">{book.description}</p>
                             <div className="mt-3 text-sm text-slate-300">
                                 {book.categories?.join(", ") || "Uncategorized"}
                             </div>
                         </div>
-                    </div>
-
-                    {/* AI Overview Section */}
-                    <div className="border-t border-slate-700 pt-4 mt-4">
-                         <h2 className="text-xl font-semibold mb-2 flex items-center gap-2 text-purple-300">
-                            <Lightbulb className="w-5 h-5" /> AI Book Overview
-                        </h2>
-                        <p className="text-slate-300 italic text-sm leading-relaxed">
-                            {aiOverview}
-                        </p>
                     </div>
                 </div>
 

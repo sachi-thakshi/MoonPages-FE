@@ -10,6 +10,7 @@ interface Book {
     categories?: string[]
     status: string
     totalWordCount?: number
+    author?: { firstName: string; lastName: string }
 }
 
 export default function AllBooks() {    
@@ -23,7 +24,7 @@ export default function AllBooks() {
             try {
                 setLoading(true)
                 setError(null)
-                const res = await getPublishedBooks() 
+                const res = await getPublishedBooks(1, 10, searchTerm) 
                 setBooks(res.books)
             } catch (err: any) {
                 console.error("Failed to fetch published books:", err)
@@ -33,12 +34,7 @@ export default function AllBooks() {
             }
         }
         fetchBooks()
-    }, [])
-
-    const filteredBooks = books.filter(book =>
-        book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        book.categories?.some(cat => cat.toLowerCase().includes(searchTerm.toLowerCase()))
-    )
+    }, [searchTerm])
 
     return (
         <div className="min-h-screen bg-slate-950 text-white px-4 py-8"
@@ -78,7 +74,7 @@ export default function AllBooks() {
                         <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500" />
                         <input
                             type="text"
-                            placeholder="Search by title or category..."
+                            placeholder="Search by title, category, content or author"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="w-full pl-10 pr-4 py-3 bg-slate-800/50 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition text-white placeholder-slate-500"
@@ -101,13 +97,13 @@ export default function AllBooks() {
                         <div className="text-center py-20 text-red-400 text-xl bg-slate-900/50 border border-red-800/50 rounded-lg p-6">
                             {error}
                         </div>
-                    ) : filteredBooks.length === 0 ? (
+                    ) : books.length === 0 ? (
                         <div className="text-center py-20 text-slate-400 text-xl">
                             No published books match your search.
                         </div>
                     ) : (
                         <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                            {filteredBooks.map((book) => (
+                            {books.map((book) => (
                                 <Link 
                                     key={book._id} 
                                     to={`/user/book/${book._id}`} 
@@ -129,7 +125,9 @@ export default function AllBooks() {
                                     {/* Book Info */}
                                     <div className="p-4">
                                         <h3 className="font-bold text-xl mb-1 text-indigo-300 truncate">{book.title}</h3>
-
+                                        <p className="text-sm text-yellow-100 mb-1">
+                                            Author: {book.author ? `${book.author.firstName} ${book.author.lastName}` : "Unknown Author"}
+                                        </p>
                                         <p className="text-xs text-slate-500">
                                             {book.categories?.slice(0, 2).join(" • ") || "General Fiction"}
                                         </p>

@@ -6,7 +6,7 @@ import { getMyDetails, login } from "../services/auth"
 import Swal from "sweetalert2"
 
 export default function Login() {
-   const [email, setUsername] = useState("")
+   const [email, setUserEmail] = useState("")
    const [password, setPassword] = useState("")
    const [showPassword, setShowPassword] = useState(false)
 
@@ -104,15 +104,15 @@ export default function Login() {
           <div className="space-y-6">
             {/* Username Input */}
             <div>
-              <label htmlFor="username" className="block text-sm font-medium mb-2 text-slate-300">
-                Username
+              <label htmlFor="email" className="block text-sm font-medium mb-2 text-slate-300">
+                Email
               </label>
               <input
-                id="username"
+                id="email"
                 type="text"
-                placeholder="Enter your username"
+                placeholder="Enter your email"
                 value={email}
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={(e) => setUserEmail(e.target.value)}
                 className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition text-white placeholder-slate-500"
               />
             </div>

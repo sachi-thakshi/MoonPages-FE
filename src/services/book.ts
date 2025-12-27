@@ -94,11 +94,10 @@ export const deleteBook = async (bookId: string) => {
     }
 }
 
-export const getPublishedBooks = async (page = 1, limit = 10) => {
+export const getPublishedBooks = async (page = 1, limit = 10, search = "") => {
     try {
-        // Hitting the new public endpoint
         const response = await api.get(`/books/published`, {
-            params: { page, limit }
+            params: { page, limit, search: search || undefined }
         }) 
         return response.data
     } catch (error) {
