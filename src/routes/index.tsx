@@ -27,6 +27,9 @@ const BookReader = lazy(() => import("../pages/author/BookReader"))
 const EditBook = lazy(() => import("../pages/author/EditBook"))
 const AuthorSettings = lazy(() => import("../pages/author/AuthorSettings"))
 
+const ForgotPassword =  lazy(() => import("../pages/ForgotPassword")) 
+const ResetPassword =  lazy(() => import("../pages/ResetPassword")) 
+
 const ROLES = {
     ADMIN: "ADMIN" as Role,
     AUTHOR: "AUTHOR" as Role,
@@ -77,6 +80,9 @@ export default function Router() {
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
 
           <Route
             path="/user/home"
