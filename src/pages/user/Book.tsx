@@ -6,7 +6,7 @@ import { generateOverview } from "../../services/ai"
 import { useAuth } from "../../context/authContext" 
 import Swal from "sweetalert2"
 
-import { BookOpen, ChevronRight, ArrowLeft, Bookmark, MessageSquare, Save, Trash2, Reply } from "lucide-react"
+import { BookOpen, ChevronRight, ArrowLeft, Bookmark, MessageSquare, Save, Trash2, Reply, Play, Pause, Square } from "lucide-react"
 
 interface Highlight {
     _id: string
@@ -44,6 +44,10 @@ export default function Book() {
     const [newComment, setNewComment] = useState('')
     const [comments, setComments] = useState<IBookComment[]>([])
 
+    const [isReading, setIsReading] = useState(false)
+    const [isPaused, setIsPaused] = useState(false)
+    const synth = window.speechSynthesis
+
     const fetchBookAndData = useCallback(async () => {
         if (!bookId) return
 
@@ -80,6 +84,49 @@ export default function Book() {
     useEffect(() => {
         fetchBookAndData()
     }, [fetchBookAndData])
+
+    const handleReadAloud = () => {
+        if (!activeChapter?.content) return
+
+        if (isReading) {
+            if (isPaused) {
+                synth.resume()
+                setIsPaused(false)
+            } else {
+                synth.pause()
+                setIsPaused(true)
+            }
+            return
+        }
+
+        const utterance = new SpeechSynthesisUtterance(activeChapter.content)
+        utterance.rate = 1.0
+        utterance.pitch = 1.0
+
+        utterance.onstart = () => setIsReading(true)
+        utterance.onend = () => {
+            setIsReading(false)
+            setIsPaused(false)
+        }
+        utterance.onerror = () => {
+            setIsReading(false)
+            setIsPaused(false)
+        }
+
+        synth.speak(utterance)
+    }
+
+    const stopReading = () => {
+        synth.cancel()
+        setIsReading(false)
+        setIsPaused(false)
+    }
+
+    useEffect(() => {
+        return () => {
+            synth.cancel()
+        }
+    }, [activeChapter, synth])
 
     const openChapter = async (chapterNumber: number) => {
         try {
@@ -279,7 +326,30 @@ export default function Book() {
                         <h1 className="text-xl font-semibold bg-linear-to-r from-yellow-400 to-purple-400 bg-clip-text text-transparent">
                             {book.title}
                         </h1>
-                        {userBookData.bookmarkChapter && (
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        {/* READ ALOUD BUTTON */}
+                        {activeChapter && (
+                            <div className="flex items-center gap-2 mr-4 border-r border-slate-700 pr-4">
+                                <button
+                                    onClick={handleReadAloud}
+                                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-all ${
+                                        isReading ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                                    }`}
+                                >
+                                    {isReading && !isPaused ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                                    {isReading ? (isPaused ? 'Resume' : 'Playing') : 'Read Aloud'}
+                                </button>
+                                {isReading && (
+                                    <button onClick={stopReading} className="p-1.5 bg-red-900/30 text-red-400 rounded-lg hover:bg-red-900/50">
+                                        <Square className="w-4 h-4" />
+                                    </button>
+                                )}
+                            </div>
+                        )}
+
+                        {userBookData.bookmarkChapter && (
                              <button
                                 onClick={handleLoadBookmark}
                                 className="text-sm px-3 py-1 bg-yellow-600/20 text-yellow-400 border border-yellow-500/30 rounded-full flex items-center gap-1 hover:bg-yellow-600/30 transition"
@@ -287,17 +357,18 @@ export default function Book() {
                                 <Bookmark className="w-4 h-4" /> Go to Bookmark (Ch. {userBookData.bookmarkChapter})
                             </button>
                         )}
-                    </div>
-                    {/* Bookmark Toggle Button */}
-                    {activeChapter && (
-                        <button
-                            onClick={handleToggleBookmark}
-                            className={`p-2 rounded-lg transition ${isCurrentChapterBookmarked ? 'bg-indigo-600 border border-indigo-500 text-white' : 'bg-slate-800/50 border border-slate-700 hover:bg-slate-700/50 text-slate-400'}`}
-                            title={isCurrentChapterBookmarked ? "Remove Bookmark" : "Add Bookmark"}
-                        >
-                            <Bookmark className="w-5 h-5" />
-                        </button>
-                    )}
+
+                        {/* Bookmark Toggle Button */}
+                        {activeChapter && (
+                            <button
+                                onClick={handleToggleBookmark}
+                                className={`p-2 rounded-lg transition ${isCurrentChapterBookmarked ? 'bg-indigo-600 border border-indigo-500 text-white' : 'bg-slate-800/50 border border-slate-700 hover:bg-slate-700/50 text-slate-400'}`}
+                                title={isCurrentChapterBookmarked ? "Remove Bookmark" : "Add Bookmark"}
+                            >
+                                <Bookmark className="w-5 h-5" />
+                            </button>
+                        )}
+                    </div>
                 </div>
             </div>
 
