@@ -1,8 +1,11 @@
 import axios, { AxiosError } from "axios"
 import { refreshTokens } from "./auth"
 
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/v1"
+
 const api = axios.create({
-  baseURL: "http://localhost:5000/api/v1"
+  baseURL: BASE_URL,
+  withCredentials: true
 })
 
 const PUBLIC_ENDPOINTS = ["/auth/login", "/auth/register", "/auth/refresh", "/auth/forgot-password", "/auth/reset-password"]
