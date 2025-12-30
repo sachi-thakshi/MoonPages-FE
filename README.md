@@ -42,7 +42,7 @@ Authors can upload and manage books. Admins can monitor user activity, and maint
 ![Create Book](screenshots/create-book.png)
 *Author book creation page*
 
-### Author Dashboard
+### Admin Dashboard
 ![Admin Dashboard](screenshots/admin-dashboard.png)
 *Personalized dashboard with charts*
 
